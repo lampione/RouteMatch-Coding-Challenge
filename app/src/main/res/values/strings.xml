@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">RouteMatch Coding Challenge</string>
+
+    <string name="features_1">As a user, I want to see my current location on a Google Map View. The app should handle the
+possibility of location services being off and permissions denied.</string>
+
+    <string name="features_2">As a user, I wish to see a list of nearby places. The places should appear as markers on the map.
+You choose the type of place: cities, restaurants, parks, etc.</string>
+
+    <string name="features_3">As a user, if I select a place from the displayed list, I should go to a page that displays more
+information about the selected place.</string>
+
+    <string name="features_4">As a user, I want to see a picture of the nearby places. Query to find if images are available for
+the place, if not handle the error. Please use a spinner or activity indicator to let the user know
+an image is loading.</string>
+
 </resources>
