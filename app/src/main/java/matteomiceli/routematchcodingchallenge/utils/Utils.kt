@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.*
@@ -13,7 +14,10 @@ import android.text.Html
 import android.text.Spanned
 import android.text.TextUtils
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.afollestad.materialdialogs.MaterialDialog
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -26,6 +30,23 @@ import java.util.TimeZone
  * Created by Matteo Miceli on 18/04/2016.
  */
 object Utils {
+
+    /**
+     * from https://stackoverflow.com/questions/42365658/custom-marker-in-google-maps-in-android-with-vector-asset-icon
+     */
+    fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor {
+        val vectorDrawable = ContextCompat.getDrawable(context, vectorResId)
+        vectorDrawable!!.setBounds(0, 0, vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight)
+
+        val bitmap = Bitmap.createBitmap(
+            vectorDrawable.intrinsicWidth,
+            vectorDrawable.intrinsicHeight,
+            Bitmap.Config.ARGB_8888)
+
+        val canvas = Canvas(bitmap)
+        vectorDrawable.draw(canvas)
+        return BitmapDescriptorFactory.fromBitmap(bitmap)
+    }
 
     fun distFrom(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Float {
         val earthRadius = 6371000.0

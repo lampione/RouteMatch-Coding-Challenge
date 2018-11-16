@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import com.github.paolorotolo.appintro.AppIntro
 import matteomiceli.routematchcodingchallenge.Preferences
 import matteomiceli.routematchcodingchallenge.R
+import matteomiceli.routematchcodingchallenge.maps.MapsActivity
 
 class IntroActivity : AppIntro() {
 
@@ -33,7 +34,7 @@ class IntroActivity : AppIntro() {
             // close activity and bring user to "Map" activity
             // also save a preference to skip intro next time
             Preferences.setShowIntro(this, false)
-            // MapsActivity.start()
+            MapsActivity.start(this)
         }
 
     }
