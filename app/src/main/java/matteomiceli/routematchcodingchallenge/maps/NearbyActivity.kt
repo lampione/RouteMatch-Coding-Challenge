@@ -16,24 +16,27 @@ import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import matteomiceli.routematchcodingchallenge.R
 import android.content.Intent
+import android.transition.TransitionManager
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintSet
 import com.google.android.gms.location.places.*
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import org.apache.commons.text.WordUtils
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.Drawable
+import kotlinx.android.synthetic.main.activity_maps.*
+import matteomiceli.routematchcodingchallenge.TextViewFont
 import matteomiceli.routematchcodingchallenge.utils.Utils
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
-        private const val TAG = "MapsActivity"
+        private const val TAG = "NearbyActivity"
 
         fun start(context: Context) {
-            val intent = Intent(context, MapsActivity::class.java)
+            val intent = Intent(context, NearbyActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
         }
@@ -46,9 +49,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     // private lateinit var mGeoDataClient: GeoDataClient
     private lateinit var placeDetectionClient: PlaceDetectionClient
 
+    private var nearbyPlaces = ArrayList<PlaceLikelihood>()
+
+    private var showingPhoto = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = "Nearby"
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         // mGeoDataClient = Places.getGeoDataClient(this)
@@ -60,13 +70,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        mMap.setInfoWindowAdapter(CustomInfoWindow(this))
+        mMap.setOnInfoWindowClickListener {
+
+        }
         getCurrentLocation()
     }
 
     private fun getCurrentLocation() {
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-            PackageManager.PERMISSION_GRANTED) {
+            PackageManager.PERMISSION_GRANTED
+        ) {
 
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 8000)
 
@@ -117,11 +132,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // val filter = PlaceFilter(false, listOf(Place.TYPE_FOOD.toString()))
         // I'm not setting any filter because somehow I could not get any results during testing
 
+        progressBar.visibility = View.VISIBLE
+
         val task = placeDetectionClient.getCurrentPlace(null)
         task.addOnCompleteListener {
             val likelyPlaces = it.result
             likelyPlaces?.forEach { place ->
                 Log.d(TAG, "${place.place.name}")
+
+                // store places data for later
+                nearbyPlaces.add(place)
 
                 val capEachWord = WordUtils.capitalizeFully(place.place.name.toString())
 
@@ -136,6 +156,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             }
             likelyPlaces?.release()
+
+            progressBar.visibility = View.GONE
+
+        }
+
+    }
+
+    override fun onBackPressed() {
+
+        if (showingPhoto) {
+
+            val constraintSet1 = ConstraintSet()
+            constraintSet1.clone(this, R.layout.activity_maps)
+            // val constraintSet2 = ConstraintSet()
+            // constraintSet2.clone(this, R.layout.activity_maps_photos)
+
+            TransitionManager.beginDelayedTransition(root)
+            constraintSet1.applyTo(root)
+            showingPhoto = false
+
+        } else {
+            super.onBackPressed()
         }
 
     }
