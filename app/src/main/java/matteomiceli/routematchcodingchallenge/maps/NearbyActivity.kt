@@ -16,17 +16,11 @@ import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import matteomiceli.routematchcodingchallenge.R
 import android.content.Intent
-import android.transition.TransitionManager
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintSet
 import com.google.android.gms.location.places.*
-import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import org.apache.commons.text.WordUtils
 import kotlinx.android.synthetic.main.activity_maps.*
-import matteomiceli.routematchcodingchallenge.TextViewFont
 import matteomiceli.routematchcodingchallenge.utils.Utils
 
 
@@ -42,16 +36,13 @@ class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private lateinit var mMap: GoogleMap
+    private lateinit var googleMap: GoogleMap
 
     // provides location update and nearby places
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    // private lateinit var mGeoDataClient: GeoDataClient
     private lateinit var placeDetectionClient: PlaceDetectionClient
 
     private var nearbyPlaces = ArrayList<PlaceLikelihood>()
-
-    private var showingPhoto = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,18 +52,17 @@ class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
         supportActionBar?.title = "Nearby"
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        // mGeoDataClient = Places.getGeoDataClient(this)
         placeDetectionClient = Places.getPlaceDetectionClient(this)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
-        mMap.setInfoWindowAdapter(CustomInfoWindow(this))
-        mMap.setOnInfoWindowClickListener {
-
+    override fun onMapReady(map: GoogleMap) {
+        googleMap = map
+        googleMap.setInfoWindowAdapter(CustomInfoWindow(this))
+        googleMap.setOnInfoWindowClickListener {
+            // launch single place activity
         }
         getCurrentLocation()
     }
@@ -104,6 +94,8 @@ class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     // got access to user location, move map and query nearby places
                     getCurrentLocation()
+                } else {
+                    // handle permission denied
                 }
 
             }
@@ -114,14 +106,14 @@ class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun locateUser() {
 
-        mMap.isMyLocationEnabled = true
-        mMap.uiSettings.isMyLocationButtonEnabled = false
-        mMap.uiSettings.isMapToolbarEnabled = false
+        googleMap.isMyLocationEnabled = true
+        googleMap.uiSettings.isMyLocationButtonEnabled = false
+        googleMap.uiSettings.isMapToolbarEnabled = false
 
         fusedLocationClient.lastLocation.addOnSuccessListener {
             val latLng = LatLng(it.latitude, it.longitude)
             val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17F)
-            mMap.animateCamera(cameraUpdate)
+            googleMap.animateCamera(cameraUpdate)
         }
 
     }
@@ -130,14 +122,14 @@ class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun getNearbyPlaces() {
 
         // val filter = PlaceFilter(false, listOf(Place.TYPE_FOOD.toString()))
-        // I'm not setting any filter because somehow I could not get any results during testing
+        // I'm not setting any filter for this showcase
 
         progressBar.visibility = View.VISIBLE
 
         val task = placeDetectionClient.getCurrentPlace(null)
         task.addOnCompleteListener {
-            val likelyPlaces = it.result
-            likelyPlaces?.forEach { place ->
+
+            it.result?.forEach { place ->
                 Log.d(TAG, "${place.place.name}")
 
                 // store places data for later
@@ -152,32 +144,13 @@ class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
                     .position(place.place.latLng)
                     .icon(bitmapDescriptor)
 
-                mMap.addMarker(marker)
+                googleMap.addMarker(marker)
 
             }
-            likelyPlaces?.release()
+            it.result?.release()
 
             progressBar.visibility = View.GONE
 
-        }
-
-    }
-
-    override fun onBackPressed() {
-
-        if (showingPhoto) {
-
-            val constraintSet1 = ConstraintSet()
-            constraintSet1.clone(this, R.layout.activity_maps)
-            // val constraintSet2 = ConstraintSet()
-            // constraintSet2.clone(this, R.layout.activity_maps_photos)
-
-            TransitionManager.beginDelayedTransition(root)
-            constraintSet1.applyTo(root)
-            showingPhoto = false
-
-        } else {
-            super.onBackPressed()
         }
 
     }
