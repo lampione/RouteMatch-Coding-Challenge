@@ -19,8 +19,11 @@ import android.content.Intent
 import android.view.View
 import com.google.android.gms.location.places.*
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.gson.Gson
 import org.apache.commons.text.WordUtils
 import kotlinx.android.synthetic.main.activity_maps.*
+import matteomiceli.routematchcodingchallenge.singlePlace.PlaceItem
+import matteomiceli.routematchcodingchallenge.singlePlace.SinglePlaceActivity
 import matteomiceli.routematchcodingchallenge.utils.Utils
 
 
@@ -42,7 +45,7 @@ class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var placeDetectionClient: PlaceDetectionClient
 
-    private var nearbyPlaces = ArrayList<PlaceLikelihood>()
+    private var nearbyPlaces = ArrayList<PlaceItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +66,18 @@ class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
         googleMap.setInfoWindowAdapter(CustomInfoWindow(this))
         googleMap.setOnInfoWindowClickListener {
             // launch single place activity
+
+            val place = nearbyPlaces.find { pl ->
+                pl.id == it.tag
+            }
+
+            if (place != null) {
+                val placeToString = Gson().toJson(place)
+                SinglePlaceActivity.start(this, placeToString)
+            } else {
+                // handle error
+            }
+
         }
         getCurrentLocation()
     }
@@ -124,16 +139,34 @@ class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
         // val filter = PlaceFilter(false, listOf(Place.TYPE_FOOD.toString()))
         // I'm not setting any filter for this showcase
 
-        progressBar.visibility = View.VISIBLE
+        // progressBar.visibility = View.VISIBLE
 
         val task = placeDetectionClient.getCurrentPlace(null)
         task.addOnCompleteListener {
 
             it.result?.forEach { place ->
-                Log.d(TAG, "${place.place.name}")
 
                 // store places data for later
-                nearbyPlaces.add(place)
+                val stored = PlaceItem(
+                    place.place.id,
+                    place.place.name.toString(),
+                    place.place.address?.toString(),
+                    place.place.phoneNumber?.toString(),
+                    place.place.attributions?.toString(),
+                    place.place.websiteUri?.encodedPath,
+                    place.place.rating
+                )
+                nearbyPlaces.add(stored)
+
+                Log.d(TAG, "" +
+                        "${place.place.id} " +
+                        "${place.place.name} " +
+                        "${place.place.address?.toString()} " +
+                        "${place.place.phoneNumber?.toString()} " +
+                        // "${place.place.attributions?.toString()} " +
+                        "${place.place.websiteUri?.encodedPath} " +
+                        "${place.place.rating}"
+                )
 
                 val capEachWord = WordUtils.capitalizeFully(place.place.name.toString())
 
@@ -144,7 +177,8 @@ class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
                     .position(place.place.latLng)
                     .icon(bitmapDescriptor)
 
-                googleMap.addMarker(marker)
+                val added = googleMap.addMarker(marker)
+                added.tag = place.place.id
 
             }
             it.result?.release()

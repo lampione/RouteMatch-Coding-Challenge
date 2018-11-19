@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/root"
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -14,6 +13,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary"
             android:elevation="4dp"
             map:layout_constraintTop_toTopOf="parent"
             map:layout_constraintStart_toStartOf="parent"/>
@@ -22,8 +22,9 @@
             android:id="@+id/progressBar"
             android:layout_width="match_parent"
             android:layout_height="4dp"
+            android:background="@color/colorPrimary"
             android:indeterminate="true"
-            android:visibility="gone"
+            android:visibility="visible"
             android:elevation="4dp"
             map:layout_constraintTop_toBottomOf="@id/toolbar"
             map:layout_constraintStart_toStartOf="parent"

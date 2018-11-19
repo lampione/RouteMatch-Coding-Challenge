@@ -14,5 +14,6 @@ information about the selected place.</string>
 the place, if not handle the error. Please use a spinner or activity indicator to let the user know
 an image is loading.</string>
     <string name="title_activity_maps">Map</string>
+    <string name="no_photos_available">No photos available</string>
 
 </resources>
