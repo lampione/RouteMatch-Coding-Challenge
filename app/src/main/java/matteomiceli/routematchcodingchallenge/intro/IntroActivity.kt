@@ -1,5 +1,7 @@
 package matteomiceli.routematchcodingchallenge.intro
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -9,6 +11,14 @@ import matteomiceli.routematchcodingchallenge.R
 import matteomiceli.routematchcodingchallenge.maps.NearbyActivity
 
 class IntroActivity : AppIntro() {
+
+    companion object {
+        fun start(context: Context) {
+            val intent = Intent(context, IntroActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

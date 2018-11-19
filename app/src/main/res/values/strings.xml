@@ -13,7 +13,15 @@ information about the selected place.</string>
     <string name="features_4">As a user, I want to see a picture of the nearby places. Query to find if images are available for
 the place, if not handle the error. Please use a spinner or activity indicator to let the user know
 an image is loading.</string>
+
     <string name="title_activity_maps">Map</string>
+
     <string name="no_photos_available">No photos available</string>
+
+    <string name="permission_denied_title">Permission Denied</string>
+
+    <string name="permission_denied_message">We need your permission in order to find nearby places, you can give your permission at any moment by clicking on the menu and selecting \'Locate Me\'.</string>
+
+    <string name="locate_me">Locate Me</string>
 
 </resources>

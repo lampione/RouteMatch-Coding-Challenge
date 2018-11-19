@@ -16,6 +16,7 @@
             android:background="@color/colorPrimaryDark"
             android:elevation="4dp"
             map:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            map:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             map:layout_constraintTop_toTopOf="parent"
             map:layout_constraintStart_toStartOf="parent"/>
 

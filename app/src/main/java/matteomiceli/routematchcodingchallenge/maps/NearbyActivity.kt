@@ -16,7 +16,10 @@ import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import matteomiceli.routematchcodingchallenge.R
 import android.content.Intent
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
+import com.afollestad.materialdialogs.MaterialDialog
 import com.google.android.gms.location.places.*
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
@@ -25,6 +28,7 @@ import kotlinx.android.synthetic.main.activity_maps.*
 import matteomiceli.routematchcodingchallenge.singlePlace.PlaceItem
 import matteomiceli.routematchcodingchallenge.singlePlace.SinglePlaceActivity
 import matteomiceli.routematchcodingchallenge.utils.Utils
+import android.widget.Toast
 
 
 class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -61,6 +65,22 @@ class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.nearby_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return when (item?.itemId) {
+            R.id.nearby_locate_me -> {
+                getCurrentLocation()
+                true
+            }
+            else -> {false}
+        }
+    }
+
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
         googleMap.setInfoWindowAdapter(CustomInfoWindow(this))
@@ -76,6 +96,7 @@ class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
                 SinglePlaceActivity.start(this, placeToString)
             } else {
                 // handle error
+                Toast.makeText(this, "Couldn't retrieve place info", Toast.LENGTH_LONG).show()
             }
 
         }
@@ -111,6 +132,13 @@ class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
                     getCurrentLocation()
                 } else {
                     // handle permission denied
+
+                    MaterialDialog(this)
+                        .title(text = getString(R.string.permission_denied_title))
+                        .message(text = getString(R.string.permission_denied_message))
+                        .positiveButton(text = "OK")
+                        .show()
+
                 }
 
             }
@@ -135,6 +163,9 @@ class NearbyActivity : AppCompatActivity(), OnMapReadyCallback {
 
     @SuppressLint("MissingPermission")
     private fun getNearbyPlaces() {
+
+        nearbyPlaces.clear()
+        googleMap.clear()
 
         // val filter = PlaceFilter(false, listOf(Place.TYPE_FOOD.toString()))
         // I'm not setting any filter for this showcase
